@@ -31,7 +31,9 @@
 
 ## 📸 Preview
 
-![Landing Page](screenshots\hero_section.png)
+<p align="center>
+ img src="screenshots\hero_section.png" width="48%">
+ </p>
 
 
 <p align="center>
