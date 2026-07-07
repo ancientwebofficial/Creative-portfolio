@@ -1,86 +1,433 @@
-# Cosmicflare
+# Creative Portfolio
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=nextdotjs)](https://nextjs.org/)
-[![Supabase](https://img.shields.io/badge/Supabase-powered-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-typed-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Open Source](https://img.shields.io/badge/Open%20Source-by%20me-111827?style=for-the-badge)](https://github.com/)
+<p align="center">
+  <h3 align="center">The Open-Source Portfolio Platform for Creative Professionals</h3>
 
-Creative studio is my personal portfolio and CMS-driven website built with Next.js, TypeScript, and Supabase. I built this codebase myself and am sharing it as an open-source project for anyone who wants to explore the architecture, reuse ideas, or adapt the CMS patterns for their own work.
+  <p align="center">
+    Build beautiful portfolios, manage content through a powerful CMS, and showcase your creative work without touching code.
+  </p>
+</p>
 
-The site is designed to present creative work with a strong visual identity while keeping the content manageable through a custom admin panel. It includes a public-facing portfolio, homepage sections, testimonials, service/plans data, media handling, and admin tools for managing site content.
+<p align="center">
 
-## Features
+![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge\&logo=nextdotjs)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge\&logo=react\&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge\&logo=typescript\&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-v4-38BDF8?style=for-the-badge\&logo=tailwindcss\&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge\&logo=supabase\&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
 
-- Public portfolio site with a custom homepage, featured work, categories, testimonials, FAQ, and contact pages
-- Admin dashboard for managing portfolio items, homepage content, services, testimonials, media, and site settings
-- Supabase-backed data layer for auth, storage, and content management
-- Responsive UI built with the Next.js App Router and modern React patterns
-- SEO-aware metadata and configurable branding/content
+</p>
 
-## Tech Stack
+<p align="center">
+  <a href="https://creativestudiodemo.vercel.app/"><strong>🌐 Live Demo</strong></a>
+  ·
+  <a href="https://github.com/ancientwebofficial/Creative-portfolio"><strong>⭐ Star on GitHub</strong></a>
+  ·
+  <a href="#installation"><strong>🚀 Installation</strong></a>
+</p>
 
-- Next.js 16
-- React 19
-- TypeScript
-- Supabase
-- Tailwind CSS v4
-- Zod
+---
 
-## Getting Started
+## 📸 Preview
 
-### Prerequisites
+![Landing Page](screenshots\hero_section.png)
 
-- Node.js 18+ recommended
-- A Supabase project
 
-### Install dependencies
+<p align="center>
+ img src="screenshots\featuredwork.png" width="48%">
+ </p>
+
+ <p align="center>
+  <img src="screenshots\ownersection.png" width="48%">
+ </p>
+
+
+<p align="center">
+   <img src="screenshots\portfolio.png" width="48%">
+  <img src="screenshots\contact.png" width="48%">
+  <img src="screenshots\admin_pannel.png" width="48%">
+</p>
+
+---
+
+# ✨ What is Creative portfolio?
+
+**Creative portfolio** is an open-source portfolio platform built for designers, thumbnail artists, creative studios, freelancers, and digital creators.
+
+Instead of managing content through code, Creative portfolio provides a modern CMS where you can customize every part of your portfolio—from your homepage and projects to testimonials, pricing, FAQs, services, and owner profile.
+
+Whether you're a Minecraft thumbnail designer, logo artist, video editor, or creative agency, Cosmicflare gives you everything you need to present your work professionally.
+
+---
+
+# 🚀 Features
+
+## 🎨 Beautiful Portfolio
+
+* Dynamic portfolio showcase
+* Featured projects
+* Categories
+* Large image previews
+* Smooth animations
+* Responsive layout
+* Hover interactions
+* Carousel support
+
+---
+
+## 👤 Owner Profile
+
+Manage your entire profile through the CMS.
+
+Includes:
+
+* Name
+* Profile Picture
+* Bio
+* Location
+* Email
+* Website
+* Business Contact
+* Instagram
+* X (Twitter)
+* Discord
+* Behance
+* Fiverr
+* GitHub
+* Modrinth
+* YouTube
+
+No code required.
+
+---
+
+## 🛠 Services
+
+Create unlimited services including:
+
+* Thumbnails
+* Logos
+* Texture Packs
+* Banners
+* Branding
+* Custom Artwork
+
+Each service supports:
+
+* Title
+* Description
+* Icon
+* Order Link
+
+---
+
+## 💰 Pricing
+
+Create multiple pricing plans with:
+
+* Plan name
+* Currency
+* Price
+* Feature list
+* CTA button
+* Popular badge
+* Display ordering
+
+---
+
+## ⭐ Testimonials
+
+Dynamic testimonial management.
+
+Supports:
+
+* Client name
+* Review
+* Rating
+* Position
+* Avatar
+
+---
+
+## 👥 Trusted Clients
+
+Showcase your clients with:
+
+* Logo
+* Name
+* Platform
+* Subscriber count
+* Channel links
+
+---
+
+## ❓ FAQ
+
+Unlimited FAQ entries with an animated accordion interface.
+
+---
+
+## 📞 Contact Section
+
+Professional contact card including:
+
+* Email
+* Website
+* Discord
+* Instagram
+* X
+* Behance
+* GitHub
+* Fiverr
+* Modrinth
+
+---
+
+# ⚙ Powerful CMS
+
+Everything is manageable from the admin dashboard.
+
+### Dashboard
+
+* Content overview
+* Quick management
+
+### Portfolio Manager
+
+* Upload projects
+* Categories
+* Featured projects
+* Tags
+* Ordering
+* Visibility
+
+### Media Library
+
+* Upload images
+* Preview assets
+* Reuse uploaded files
+
+### Owner Settings
+
+Manage:
+
+* Profile
+* Bio
+* Social links
+* Contact information
+
+### Pricing Manager
+
+Create and edit pricing plans.
+
+### Testimonials Manager
+
+Full CRUD support.
+
+### FAQ Manager
+
+Manage frequently asked questions.
+
+### Services Manager
+
+Manage offered services.
+
+### Site Settings
+
+Configure:
+
+* Branding
+* Logo
+* SEO defaults
+* Footer
+* Site title
+
+---
+
+# 🔐 Authentication & Security
+
+* Secure admin authentication
+* Protected CMS
+* Environment variables
+* Input validation
+* URL validation
+* Row Level Security (RLS)
+* Type-safe backend
+
+---
+
+# 🚀 Performance
+
+Built using modern web technologies.
+
+* Next.js 16
+* React 19
+* TypeScript
+* Server Components
+* Lazy Loading
+* Optimized Images
+* Responsive Assets
+
+---
+
+# 🔍 SEO Ready
+
+Includes:
+
+* Dynamic Metadata
+* Open Graph
+* Twitter Cards
+* Sitemap
+* Robots.txt
+* Semantic HTML
+
+---
+
+# 🛠 Tech Stack
+
+| Technology       | Usage          |
+| ---------------- | -------------- |
+| Next.js 16       | Framework      |
+| React 19         | Frontend       |
+| TypeScript       | Language       |
+| Tailwind CSS v4  | Styling        |
+| Supabase         | Database       |
+| PostgreSQL       | Data Storage   |
+| Supabase Auth    | Authentication |
+| Supabase Storage | Media Storage  |
+| Zod              | Validation     |
+| Vercel           | Deployment     |
+
+---
+
+# 📦 Installation
+
+## Clone the repository
+
+```bash
+git clone https://github.com/ancientwebofficial/Creative-portfolio.git
+
+cd <Creative-portfolio>
+```
+
+## Install dependencies
 
 ```bash
 npm install
 ```
 
-### Environment variables
+## Configure environment variables
 
-Create a `.env.local` file with the following values:
+Create a `.env.local` file.
 
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
+
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
+
 SUPABASE_SERVICE_ROLE_KEY=
+
 NEXT_PUBLIC_SUPABASE_MEDIA_BUCKET=portfolio-media
 ```
 
-`NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are required for the app to connect to Supabase. `SUPABASE_SERVICE_ROLE_KEY` is needed for server-side admin features. The media bucket defaults to `portfolio-media` if you do not set `NEXT_PUBLIC_SUPABASE_MEDIA_BUCKET`.
+## Configure Supabase
 
-### Run the app
+* Create a Supabase project.
+* Run the SQL migrations inside `supabase/migrations`.
+* Create the `portfolio-media` storage bucket.
+* Configure the bucket permissions according to the migration policies.
+
+## Start the development server
 
 ```bash
 npm run dev
 ```
 
-Then open the local development server shown in the terminal.
+Open:
 
-## Available Scripts
+http://localhost:3000
 
-- `npm run dev` - start the development server
-- `npm run build` - create a production build
-- `npm run start` - start the production server
-- `npm run lint` - run ESLint
+---
 
-## Project Structure
+# 📂 Project Structure
 
-- `src/app` - app routes, layouts, and API routes
-- `src/components` - shared UI and admin components
-- `src/lib` - CMS, Supabase, auth, and data helpers
-- `supabase/migrations` - database schema and policy migrations
+```text
+src/
+├── app/
+├── components/
+├── lib/
+├── hooks/
+├── types/
 
-## Notes
+supabase/
+└── migrations/
 
-- The app is set up around Supabase migrations and admin policies, so make sure your database matches the schema in `supabase/migrations` before using the CMS.
-- Site branding is driven by CMS settings, which lets the public-facing title and owner details stay flexible.
+public/
 
-## License
+assets/
+└── screenshots/
+```
 
-Creative studio is licensed under the MIT License. See [LICENSE](LICENSE) for the full text.
+---
 
-I wrote this code myself and I’m sharing it openly so people can study, fork, and build on it.
+# 🗺 Roadmap
+
+## ✅ Current
+
+* Portfolio CMS
+* Dynamic Homepage
+* Pricing
+* Testimonials
+* FAQ
+* Media Library
+* Responsive UI
+* Authentication
+
+## 🚧 Planned
+
+* Discord Bot Integration
+* Real-time Order Notifications
+* Client Portal
+* File Delivery
+* Messaging
+* Payment Gateway
+* Invoice Generation
+* Analytics Dashboard
+* AI Design Recommendations
+* Booking System
+* Email Notifications
+* Push Notifications
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome.
+
+If you'd like to improve Cosmicflare:
+
+1. Fork the repository.
+2. Create a new branch.
+3. Commit your changes.
+4. Open a Pull Request.
+
+Feature requests and bug reports are always appreciated.
+
+---
+
+# 📜 License
+
+This project is licensed under the MIT License.
+
+See the `LICENSE` file for details.
+
+---
+
+<p align="center">
+
+Made with ❤️ using Next.js, TypeScript and Supabase.
+
+If you find Creative Portfolio useful, consider giving the project a ⭐ on GitHub.
+
+</p>
