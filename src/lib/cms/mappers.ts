@@ -119,6 +119,7 @@ export interface SiteSettingsDto {
   about_text: string | null;
   discord_url: string | null;
   owner_name: string | null;
+  owner_role: string | null;
   owner_avatar_url: string | null;
   owner_email: string | null;
   owner_discord: string | null;
@@ -274,6 +275,7 @@ export function mapSiteSettings(row: Tables<"site_settings">): SiteSettingsDto {
     about_text: row.about_text,
     discord_url: row.discord_url,
     owner_name: row.owner_name,
+    owner_role: null,
     owner_avatar_url: row.owner_avatar_url,
     owner_email: row.owner_email,
     owner_discord: row.owner_discord,

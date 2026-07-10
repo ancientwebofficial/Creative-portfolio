@@ -3,15 +3,23 @@ import Image from "next/image";
 import type { SiteSettingsDto } from "@/lib/cms/mappers";
 import SocialLinks from "@/components/shared/SocialLinks";
 import { getSiteBrandName } from "@/lib/cms/owner";
+import type { PayloadGlobals } from "@/lib/payload/public-data";
 
 interface FooterProps {
   settings?: SiteSettingsDto | null;
+  payload?: PayloadGlobals;
 }
 
-export default function Footer({ settings }: FooterProps) {
+export default function Footer({ settings, payload }: FooterProps) {
   const currentYear = new Date().getFullYear();
   const siteName = getSiteBrandName(settings);
-  const footerText = settings?.footer_text || `${siteName}. All rights reserved.`;
+  const footer = payload?.footer;
+  const footerLinks = payload?.navigation.footerLinks || [
+    { label: "Portfolio", href: "/portfolio", newTab: false },
+    { label: "Pricing", href: "/#pricing", newTab: false },
+    { label: "Contact", href: "/contact", newTab: false },
+  ];
+  const footerText = footer?.copyrightText || settings?.footer_text || `${siteName}. All rights reserved.`;
 
   return (
     <footer className="mt-20 border-t border-white/10 bg-[#070b10]">
@@ -43,50 +51,42 @@ export default function Footer({ settings }: FooterProps) {
                 )}
                 <div>
                   <p className="font-heading text-xl font-semibold text-white">{siteName}</p>
-                  <p className="text-xs uppercase tracking-[0.3em] text-[#9aa7b9]">{settings?.owner_location || "Premium creative work"}</p>
+                  <p className="text-xs uppercase tracking-[0.3em] text-[#9aa7b9]">{settings?.owner_location || footer?.brandKicker || "Premium creative work"}</p>
                 </div>
               </div>
               <p className="max-w-md text-sm leading-7 text-[#9aa7b9]">
-                {settings?.owner_bio || settings?.seo_description || "Premium Minecraft design portfolio"}
+                {footer?.description || settings?.owner_bio || settings?.seo_description || "Premium Minecraft design portfolio"}
               </p>
               <div className="mt-8 inline-flex flex-wrap gap-3">
-                <Link href="/portfolio" className="glass-button">
-                  View portfolio
+                <Link href={footer?.primaryCta?.href || "/portfolio"} className="glass-button">
+                  {footer?.primaryCta?.label || "View portfolio"}
                 </Link>
-                <Link href="/contact" className="ghost-button">
-                  Start a project
+                <Link href={footer?.secondaryCta?.href || "/contact"} className="ghost-button">
+                  {footer?.secondaryCta?.label || "Start a project"}
                 </Link>
               </div>
               {settings?.owner_avatar_url && (
                 <p className="mt-4 text-xs uppercase tracking-[0.25em] text-[#748095]">
-                  Owner profile active
+                  {footer?.ownerProfileNotice || "Owner profile active"}
                 </p>
               )}
             </div>
 
             <div>
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-[#9aa7b9]">Navigation</h3>
+              <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-[#9aa7b9]">{footer?.navigationHeading || "Navigation"}</h3>
               <ul className="space-y-3 text-sm">
-                <li>
-                  <Link href="/portfolio" className="text-[#ffffff] hover:text-[#b794f6]">
-                    Portfolio
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/#pricing" className="text-[#ffffff] hover:text-[#b794f6]">
-                    Pricing
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="text-[#ffffff] hover:text-[#b794f6]">
-                    Contact
-                  </Link>
-                </li>
+                {footerLinks.map((link) => (
+                  <li key={`${link.href}-${link.label}`}>
+                    <Link href={link.href} className="text-[#ffffff] hover:text-[#b794f6]">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
             <div>
-              <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-[#9aa7b9]">Contact</h3>
+              <h3 className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-[#9aa7b9]">{footer?.contactHeading || "Contact"}</h3>
               <SocialLinks settings={settings} variant="list" />
             </div>
           </div>

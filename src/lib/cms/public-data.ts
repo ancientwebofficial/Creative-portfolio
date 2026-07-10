@@ -1,10 +1,19 @@
 import { categories as staticCategories, portfolioItems } from "@/data/portfolioItems";
 import type { PortfolioItem } from "@/data/portfolioItems";
+import { faqItems } from "@/data/faqItems";
 import { plans } from "@/data/plans";
 import { testimonials } from "@/data/testimonials";
 import { hasSupabaseConfig } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { createSupabaseServiceRoleClient } from "@/lib/supabase/service-role";
+import {
+  getPayloadCollections,
+  getPayloadGlobals,
+  getPayloadSiteSettings,
+  hasPayloadDatabaseConfig,
+  hasPayloadContent,
+  type PayloadGlobals,
+} from "@/lib/payload/public-data";
 import {
   getHomepageContent,
   getPortfolioItemBySlug,
@@ -38,6 +47,14 @@ export interface HomepageCmsData {
   services: ServiceDto[];
   testimonials: TestimonialDto[];
   categories: CategoryDto[];
+  faqs: typeof faqItems;
+  payload: PayloadGlobals;
+}
+
+interface PayloadPublicData {
+  settings: SiteSettingsDto;
+  collections: NonNullable<Awaited<ReturnType<typeof getPayloadCollections>>>;
+  payload: PayloadGlobals;
 }
 
 function getStaticServices(): ServiceDto[] {
@@ -86,7 +103,24 @@ function getStaticCategories(): CategoryDto[] {
   }));
 }
 
-export async function getHomepageData(): Promise<HomepageCmsData> {
+async function getPayloadPublicData(): Promise<PayloadPublicData | null> {
+  const [payload, collections] = await Promise.all([
+    getPayloadGlobals(),
+    getPayloadCollections(),
+  ]);
+
+  if (!collections || !hasPayloadContent(collections)) {
+    return null;
+  }
+
+  return {
+    settings: getPayloadSiteSettings(payload),
+    collections,
+    payload,
+  };
+}
+
+async function getLegacyHomepageData(payload: PayloadGlobals): Promise<HomepageCmsData> {
   if (!hasSupabaseConfig()) {
     return {
       settings: null,
@@ -95,14 +129,97 @@ export async function getHomepageData(): Promise<HomepageCmsData> {
       services: getStaticServices(),
       testimonials: getStaticTestimonials(),
       categories: getStaticCategories(),
+      faqs: faqItems,
+      payload,
     };
   }
 
   const supabase = await createPublicDataClient();
-  return getHomepageContent(supabase);
+  const homepage = await getHomepageContent(supabase);
+
+  return {
+    ...homepage,
+    faqs: faqItems,
+    payload,
+  };
+}
+
+function sortPortfolioItems(items: PortfolioItem[], sort?: PortfolioSort) {
+  const sorted = [...items];
+
+  if (sort === "popular") {
+    return sorted.sort((a, b) => (b.popularity_score || 0) - (a.popularity_score || 0) || a.title.localeCompare(b.title));
+  }
+
+  if (sort === "oldest") {
+    return sorted.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  }
+
+  if (sort === "featured") {
+    return sorted.sort((a, b) => Number(b.featured) - Number(a.featured) || (b.popularity_score || 0) - (a.popularity_score || 0));
+  }
+
+  return sorted.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+}
+
+function filterPortfolioItems(
+  items: PortfolioItem[],
+  options: {
+    category?: string;
+    sort?: PortfolioSort;
+    search?: string;
+    limit?: number;
+    offset?: number;
+  }
+) {
+  const search = options.search?.trim().toLowerCase();
+  const filtered = items.filter((item) => {
+    const matchesCategory = !options.category || item.category === options.category;
+    const matchesSearch =
+      !search ||
+      item.title.toLowerCase().includes(search) ||
+      item.description.toLowerCase().includes(search) ||
+      item.tags.some((tag) => tag.toLowerCase().includes(search));
+
+    return matchesCategory && matchesSearch;
+  });
+  const sorted = sortPortfolioItems(filtered, options.sort || "recent");
+  const offset = options.offset || 0;
+  const limit = options.limit || sorted.length;
+
+  return {
+    items: sorted.slice(offset, offset + limit),
+    count: sorted.length,
+    limit,
+    offset,
+  };
+}
+
+export async function getHomepageData(): Promise<HomepageCmsData> {
+  const payloadData = await getPayloadPublicData();
+
+  if (payloadData) {
+    const { collections, payload, settings } = payloadData;
+    return {
+      settings,
+      blocks: [],
+      featuredProjects: collections.portfolioItems.filter((item) => item.featured),
+      services: collections.pricingPlans,
+      testimonials: collections.testimonials,
+      categories: collections.categories,
+      faqs: collections.faqs,
+      payload,
+    };
+  }
+
+  return getLegacyHomepageData(await getPayloadGlobals());
 }
 
 export async function getSiteSettingsData() {
+  if (hasPayloadDatabaseConfig()) {
+    return getPayloadSiteSettings(await getPayloadGlobals());
+  }
+
   if (!hasSupabaseConfig()) {
     return null;
   }
@@ -118,14 +235,18 @@ export async function getPortfolioData(options: {
   limit?: number;
   offset?: number;
 }) {
+  const payloadData = await getPayloadPublicData();
+
+  if (payloadData) {
+    return {
+      portfolio: filterPortfolioItems(payloadData.collections.portfolioItems, options),
+      categories: payloadData.collections.categories,
+    };
+  }
+
   if (!hasSupabaseConfig()) {
     return {
-      portfolio: {
-        items: portfolioItems,
-        count: portfolioItems.length,
-        limit: options.limit || portfolioItems.length,
-        offset: options.offset || 0,
-      },
+      portfolio: filterPortfolioItems(portfolioItems, options),
       categories: getStaticCategories(),
     };
   }
@@ -140,6 +261,12 @@ export async function getPortfolioData(options: {
 }
 
 export async function getPortfolioItemData(slug: string) {
+  const payloadData = await getPayloadPublicData();
+
+  if (payloadData) {
+    return payloadData.collections.portfolioItems.find((item) => item.slug === slug || item.id === slug) || null;
+  }
+
   if (!hasSupabaseConfig()) {
     return portfolioItems.find((item) => item.id === slug) || null;
   }
@@ -149,6 +276,12 @@ export async function getPortfolioItemData(slug: string) {
 }
 
 export async function getCategoriesData() {
+  const payloadData = await getPayloadPublicData();
+
+  if (payloadData) {
+    return payloadData.collections.categories;
+  }
+
   if (!hasSupabaseConfig()) {
     return getStaticCategories();
   }
@@ -158,6 +291,12 @@ export async function getCategoriesData() {
 }
 
 export async function getServicesData() {
+  const payloadData = await getPayloadPublicData();
+
+  if (payloadData) {
+    return payloadData.collections.pricingPlans;
+  }
+
   if (!hasSupabaseConfig()) {
     return getStaticServices();
   }
@@ -168,6 +307,13 @@ export async function getServicesData() {
 
 export async function getTestimonialsData(options: { featuredOnly?: boolean } = {}) {
   const featuredOnly = options.featuredOnly || false;
+  const payloadData = await getPayloadPublicData();
+
+  if (payloadData) {
+    return featuredOnly
+      ? payloadData.collections.testimonials.filter((testimonial) => testimonial.featured)
+      : payloadData.collections.testimonials;
+  }
 
   if (!hasSupabaseConfig()) {
     const staticTestimonials = getStaticTestimonials();

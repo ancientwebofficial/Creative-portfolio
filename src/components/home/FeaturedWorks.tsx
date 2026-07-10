@@ -1,13 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { portfolioItems as staticPortfolioItems } from "@/data/portfolioItems";
 import type { PortfolioItem } from "@/data/portfolioItems";
 
 interface FeaturedWorksProps {
   portfolioItems?: PortfolioItem[];
+  content?: {
+    eyebrow?: string | null;
+    heading?: string | null;
+    description?: string | null;
+    cta?: { label?: string | null; href?: string | null } | null;
+    autoplayDelayMs?: number | null;
+  } | null;
 }
 
 function formatCategory(category: string) {
@@ -15,15 +21,93 @@ function formatCategory(category: string) {
 }
 
 export default function FeaturedWorks({
-  portfolioItems = staticPortfolioItems,
+  portfolioItems = [],
+  content,
 }: FeaturedWorksProps) {
   const scrollerRef = useRef<HTMLDivElement | null>(null);
   const slideRefs = useRef<Array<HTMLElement | null>>([]);
+  const activeIndexRef = useRef(0);
+  const autoplayTimerRef = useRef<number | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [autoplayResetKey, setAutoplayResetKey] = useState(0);
+  const [hasAutoplayFocus, setHasAutoplayFocus] = useState(false);
+  const [isAutoplayHovered, setIsAutoplayHovered] = useState(false);
+  const [isTabVisible, setIsTabVisible] = useState(true);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(true);
 
   const visibleFeatured = useMemo(() => {
-    return (portfolioItems.length > 0 ? portfolioItems : staticPortfolioItems).slice(0, 8);
+    return portfolioItems.slice(0, 8);
   }, [portfolioItems]);
+
+  const isAutoplayPaused =
+    hasAutoplayFocus || isAutoplayHovered || !isTabVisible || prefersReducedMotion;
+
+  const clearAutoplayTimer = useCallback(() => {
+    if (autoplayTimerRef.current) {
+      window.clearTimeout(autoplayTimerRef.current);
+      autoplayTimerRef.current = null;
+    }
+  }, []);
+
+  const scrollToIndex = useCallback((index: number) => {
+    const scroller = scrollerRef.current;
+    const length = visibleFeatured.length;
+
+    if (!scroller || length === 0) {
+      return;
+    }
+
+    const nextIndex = (index + length) % length;
+    const slide = slideRefs.current[nextIndex];
+
+    if (!slide) {
+      return;
+    }
+
+    activeIndexRef.current = nextIndex;
+    scroller.scrollTo({
+      left: slide.offsetLeft - (scroller.clientWidth - slide.offsetWidth) / 2,
+      behavior: "smooth",
+    });
+    setActiveIndex(nextIndex);
+  }, [visibleFeatured.length]);
+
+  const handleManualScrollToIndex = useCallback((index: number) => {
+    clearAutoplayTimer();
+    scrollToIndex(index);
+    setAutoplayResetKey((key) => key + 1);
+  }, [clearAutoplayTimer, scrollToIndex]);
+
+  useEffect(() => {
+    activeIndexRef.current = activeIndex;
+  }, [activeIndex]);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateReducedMotion = () => {
+      setPrefersReducedMotion(mediaQuery.matches);
+    };
+
+    updateReducedMotion();
+    mediaQuery.addEventListener("change", updateReducedMotion);
+
+    return () => {
+      mediaQuery.removeEventListener("change", updateReducedMotion);
+    };
+  }, []);
+
+  useEffect(() => {
+    const updateVisibility = () => {
+      setIsTabVisible(!document.hidden);
+    };
+
+    updateVisibility();
+    document.addEventListener("visibilitychange", updateVisibility);
+
+    return () => {
+      document.removeEventListener("visibilitychange", updateVisibility);
+    };
+  }, []);
 
   useEffect(() => {
     const scroller = scrollerRef.current;
@@ -51,6 +135,7 @@ export default function FeaturedWorks({
         }
       });
 
+      activeIndexRef.current = nearestIndex;
       setActiveIndex(nearestIndex);
     };
 
@@ -64,46 +149,62 @@ export default function FeaturedWorks({
     };
   }, [visibleFeatured.length]);
 
-  const scrollToIndex = (index: number) => {
-    const length = visibleFeatured.length;
+  useEffect(() => {
+    clearAutoplayTimer();
 
-    if (length === 0) {
+    if (isAutoplayPaused || visibleFeatured.length <= 1) {
       return;
     }
 
-    const nextIndex = (index + length) % length;
-    const slide = slideRefs.current[nextIndex];
+    autoplayTimerRef.current = window.setTimeout(() => {
+      scrollToIndex(activeIndexRef.current + 1);
+    }, content?.autoplayDelayMs || 5000);
 
-    if (!slide) {
-      return;
-    }
-
-    slide.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-    setActiveIndex(nextIndex);
-  };
+    return clearAutoplayTimer;
+  }, [
+    activeIndex,
+    autoplayResetKey,
+    clearAutoplayTimer,
+    isAutoplayPaused,
+    scrollToIndex,
+    visibleFeatured.length,
+    content?.autoplayDelayMs,
+  ]);
 
   if (visibleFeatured.length === 0) {
     return null;
   }
 
   return (
-    <section className="section-shell featured-showcase bg-[#0c1118] py-20 sm:py-24 lg:py-28">
+    <section
+      className="section-shell featured-showcase bg-[#0c1118] py-20 sm:py-24 lg:py-28"
+      onPointerEnter={() => setIsAutoplayHovered(true)}
+      onPointerLeave={() => setIsAutoplayHovered(false)}
+      onFocus={() => setHasAutoplayFocus(true)}
+      onBlur={(event) => {
+        const nextTarget = event.relatedTarget;
+
+        if (!(nextTarget instanceof Node) || !event.currentTarget.contains(nextTarget)) {
+          setHasAutoplayFocus(false);
+        }
+      }}
+    >
       <div className="section-grid" />
       <div className="relative z-10 mx-auto mb-10 flex max-w-7xl flex-col gap-6 px-4 sm:px-6 lg:flex-row lg:items-end lg:justify-between lg:px-8">
         <div className="max-w-3xl">
-          <span className="section-kicker mb-5">Selected work</span>
+          <span className="section-kicker mb-5">{content?.eyebrow || "Selected work"}</span>
           <h2 className="section-title text-4xl sm:text-5xl lg:text-6xl">
-            Featured Work
+            {content?.heading || "Featured Work"}
           </h2>
           <p className="section-copy mt-5 max-w-2xl text-lg">
-            A cinematic look at recent creative projects, built to feel closer to an agency showcase than a static portfolio grid.
+            {content?.description || "A cinematic look at recent creative projects, built to feel closer to an agency showcase than a static portfolio grid."}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             type="button"
-            onClick={() => scrollToIndex(activeIndex - 1)}
+            onClick={() => handleManualScrollToIndex(activeIndex - 1)}
             className="carousel-arrow nav-pill icon-lift flex h-12 w-12 items-center justify-center text-xl text-white"
             aria-label="Previous featured work"
           >
@@ -111,7 +212,7 @@ export default function FeaturedWorks({
           </button>
           <button
             type="button"
-            onClick={() => scrollToIndex(activeIndex + 1)}
+            onClick={() => handleManualScrollToIndex(activeIndex + 1)}
             className="carousel-arrow nav-pill icon-lift flex h-12 w-12 items-center justify-center text-xl text-white"
             aria-label="Next featured work"
           >
@@ -181,15 +282,15 @@ export default function FeaturedWorks({
             <button
               key={item.id}
               type="button"
-              onClick={() => scrollToIndex(index)}
+              onClick={() => handleManualScrollToIndex(index)}
               className={`micro-button h-2.5 rounded-full ${index === activeIndex ? "w-10 bg-[#d7cdf5] shadow-[0_0_18px_rgba(183,148,246,0.5)]" : "w-2.5 bg-white/25 hover:bg-white/45"}`}
               aria-label={`Go to featured work ${index + 1}`}
             />
           ))}
         </div>
 
-        <Link href="/portfolio" className="glass-button">
-          View all work
+        <Link href={content?.cta?.href || "/portfolio"} className="glass-button">
+          {content?.cta?.label || "View all work"}
           <span aria-hidden="true">&rarr;</span>
         </Link>
       </div>

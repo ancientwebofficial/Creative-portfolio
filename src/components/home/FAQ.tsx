@@ -1,31 +1,47 @@
 "use client";
 
-import { faqItems } from "@/data/faqItems";
+import type { FAQItem } from "@/data/faqItems";
 import Link from "next/link";
 import { useState } from "react";
 
-export default function FAQ() {
+interface FAQProps {
+  items?: FAQItem[];
+  content?: {
+    enabled?: boolean | null;
+    eyebrow?: string | null;
+    heading?: string | null;
+    description?: string | null;
+    ctaKicker?: string | null;
+    cta?: { label?: string | null; href?: string | null; newTab?: boolean | null } | null;
+  } | null;
+}
+
+export default function FAQ({ items = [], content }: FAQProps) {
   const [openId, setOpenId] = useState<string | null>(null);
+
+  if (content?.enabled === false) {
+    return null;
+  }
 
   return (
     <section className="section-shell bg-[#0c1118]">
       <div className="section-grid" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-14 max-w-3xl">
-          <span className="section-kicker mb-5">FAQ</span>
+          <span className="section-kicker mb-5">{content?.eyebrow || "FAQ"}</span>
           <h2 className="section-title text-4xl sm:text-5xl lg:text-6xl">
-            Frequently Asked Questions
+            {content?.heading || "Frequently Asked Questions"}
           </h2>
           <p className="section-copy mt-5 text-lg">
-            Everything you need to know about working on projects together.
+            {content?.description || "Everything you need to know about working on projects together."}
           </p>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
           {[0, 1].map((column) => (
             <div key={column} className="space-y-4">
-              {faqItems
-                .slice(column * Math.ceil(faqItems.length / 2), (column + 1) * Math.ceil(faqItems.length / 2))
+              {items
+                .slice(column * Math.ceil(items.length / 2), (column + 1) * Math.ceil(items.length / 2))
                 .map((item) => (
                   <div
                     key={item.id}
@@ -65,12 +81,14 @@ export default function FAQ() {
         </div>
 
         <div className="mt-12 surface-panel-strong rounded-[2rem] p-8 sm:p-10">
-          <p className="text-sm uppercase tracking-[0.22em] text-[#9aa7b9]">Still have questions?</p>
+          <p className="text-sm uppercase tracking-[0.22em] text-[#9aa7b9]">{content?.ctaKicker || "Still have questions?"}</p>
           <Link
-            href="/contact"
+            href={content?.cta?.href || "/contact"}
+            target={content?.cta?.newTab ? "_blank" : undefined}
+            rel={content?.cta?.newTab ? "noopener noreferrer" : undefined}
             className="mt-4 inline-flex items-center gap-2 text-lg font-semibold text-[#b794f6] hover:text-[#9d6eff]"
           >
-            Reach out on the contact page
+            {content?.cta?.label || "Reach out on the contact page"}
             <span>→</span>
           </Link>
         </div>

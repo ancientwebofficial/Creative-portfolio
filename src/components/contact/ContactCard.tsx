@@ -12,6 +12,15 @@ import {
 
 interface ContactCardProps {
   settings?: SiteSettingsDto | null;
+  content?: {
+    eyebrow?: string | null;
+    headingTemplate?: string | null;
+    description?: string | null;
+    ownerProfileEyebrow?: string | null;
+    bioFallback?: string | null;
+    discordServerDisplayFallback?: string | null;
+    actions?: { kind?: string | null; platform?: string | null; action?: string | null }[] | null;
+  } | null;
 }
 
 type ContactIconProps = {
@@ -167,13 +176,13 @@ function getDomain(value: string) {
   }
 }
 
-function getFriendlyDisplay(link: OwnerSocialLink) {
+function getFriendlyDisplay(link: OwnerSocialLink, discordServerFallback = "Join our Discord Community") {
   if (link.kind === "email" || link.kind === "discord") {
     return link.value;
   }
 
   if (link.kind === "discord_server") {
-    return "Join our Discord Community";
+    return discordServerFallback;
   }
 
   if (link.kind === "website") {
@@ -192,11 +201,16 @@ function getFriendlyDisplay(link: OwnerSocialLink) {
   return getUrlPart(link.href, link.value);
 }
 
-function getContactPresentation(link: OwnerSocialLink): ContactPresentation {
+function getContactPresentation(
+  link: OwnerSocialLink,
+  content?: ContactCardProps["content"]
+): ContactPresentation {
+  const override = content?.actions?.find((action) => action.kind === link.kind);
+
   return {
-    platform: platformByKind[link.kind],
-    display: getFriendlyDisplay(link),
-    action: actionByKind[link.kind],
+    platform: override?.platform || platformByKind[link.kind],
+    display: getFriendlyDisplay(link, content?.discordServerDisplayFallback || undefined),
+    action: override?.action || actionByKind[link.kind],
     Icon: iconByKind[link.kind],
   };
 }
@@ -205,12 +219,13 @@ function stripUrlsFromText(value: string) {
   return value.replace(/https?:\/\/\S+|www\.\S+/gi, "").replace(/\s{2,}/g, " ").trim();
 }
 
-export default function ContactCard({ settings }: ContactCardProps) {
+export default function ContactCard({ settings, content }: ContactCardProps) {
   const ownerName = getOwnerDisplayName(settings);
   const ownerBio = stripUrlsFromText(getOwnerBio(settings));
   const fallbackBio = stripUrlsFromText(settings?.about_text || "");
   const ownerLocation = getOwnerLocation(settings);
   const links = getOwnerSocialLinks(settings);
+  const headingTemplate = content?.headingTemplate || "Get in touch with {ownerName}";
 
   return (
     <section className="section-shell contact-polish-shell py-20 sm:py-24">
@@ -218,12 +233,12 @@ export default function ContactCard({ settings }: ContactCardProps) {
       <div className="contact-glow-field" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto mb-12 max-w-3xl text-center">
-          <span className="section-kicker mb-5 justify-center">Contact</span>
+          <span className="section-kicker mb-5 justify-center">{content?.eyebrow || "Contact"}</span>
           <h1 className="section-title text-4xl sm:text-5xl lg:text-6xl">
-            Get in touch with {ownerName}
+            {headingTemplate.replace("{ownerName}", ownerName)}
           </h1>
           <p className="section-copy mx-auto mt-5 max-w-2xl text-lg">
-            Choose the best place to connect, collaborate, or start a commission.
+            {content?.description || "Choose the best place to connect, collaborate, or start a commission."}
           </p>
         </div>
 
@@ -248,7 +263,7 @@ export default function ContactCard({ settings }: ContactCardProps) {
                 </div>
 
                 <div className="min-w-0">
-                  <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#b794f6]">Owner profile</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.24em] text-[#b794f6]">{content?.ownerProfileEyebrow || "Owner profile"}</p>
                   <h2 className="mt-3 text-3xl font-semibold text-white sm:text-4xl">{ownerName}</h2>
                   {ownerLocation && (
                     <p className="mt-4 inline-flex rounded-full border border-[#b794f6]/25 bg-[#8b5cf6]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#d7cdf5]">
@@ -259,14 +274,14 @@ export default function ContactCard({ settings }: ContactCardProps) {
               </div>
 
               <p className="mt-7 max-w-2xl text-sm leading-8 text-[#cfd7e6] sm:text-base">
-                {ownerBio || fallbackBio || "Project inquiries, collaborations, and business questions can all go here."}
+                {ownerBio || fallbackBio || content?.bioFallback || "Project inquiries, collaborations, and business questions can all go here."}
               </p>
             </div>
           </article>
 
           <div className="grid gap-4 sm:grid-cols-2">
             {links.map((link, index) => {
-              const contact = getContactPresentation(link);
+              const contact = getContactPresentation(link, content);
               const Icon = contact.Icon;
 
               return (

@@ -39,16 +39,16 @@
 
 html {
   background:
-    radial-gradient(circle at top left, rgba(139, 92, 246, 0.18), transparent 28%),
-    radial-gradient(circle at top right, rgba(183, 148, 246, 0.12), transparent 24%),
-    linear-gradient(180deg, #0b0814 0%, #100b1d 58%, #0b0814 100%);
+    radial-gradient(circle at top left, color-mix(in srgb, var(--color-glow) 18%, transparent), transparent 28%),
+    radial-gradient(circle at top right, color-mix(in srgb, var(--accent-strong) 12%, transparent), transparent 24%),
+    linear-gradient(180deg, var(--background) 0%, var(--background-muted) 58%, var(--background) 100%);
   color: var(--text-primary);
 }
 
 body {
   background:
-    radial-gradient(circle at top left, rgba(139, 92, 246, 0.08), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(157, 110, 255, 0.06), transparent 18%),
+    radial-gradient(circle at top left, color-mix(in srgb, var(--color-glow) 8%, transparent), transparent 24%),
+    radial-gradient(circle at bottom right, color-mix(in srgb, var(--color-focus-ring) 6%, transparent), transparent 18%),
     var(--background);
   color: var(--text-primary);
   position: relative;
@@ -582,7 +582,8 @@ textarea {
 }
 
 .featured-card {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.95);
+  transform-origin: center;
   transition:
     transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.32s cubic-bezier(0.22, 1, 0.36, 1),
@@ -631,7 +632,7 @@ textarea {
   box-shadow:
     0 48px 138px -64px rgba(139, 92, 246, 0.78),
     0 0 44px rgba(139, 92, 246, 0.16);
-  transform: translate3d(0, -6px, 0);
+  transform: translate3d(0, -6px, 0) scale(0.95);
 }
 
 .featured-slide:hover .featured-card::before {

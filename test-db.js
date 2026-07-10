@@ -1,21 +1,36 @@
-const { createClient } = require("@supabase/supabase-js");
+import pg from "pg";
 
-const url = "https://jgfoandvdeuyslqrqjwb.supabase.co";
-const anonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpnZm9hbmR2ZGV1eXNscXJxandiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAxMjAyNjksImV4cCI6MjA5NTY5NjI2OX0.2RR3NpzBcBCP-rum9WdGhnehWJystrcUcA2ZcxaKYaQ";
+const { Client } = pg;
 
-const supabase = createClient(url, anonKey);
+const connectionString =
+  process.env.PAYLOAD_DATABASE_URI || process.env.DATABASE_URL;
+
+if (!connectionString) {
+  throw new Error(
+    "Missing database connection string. Set PAYLOAD_DATABASE_URI or DATABASE_URL before running test-db.js."
+  );
+}
+
+const client = new Client({ connectionString });
 
 async function testDB() {
-  const { data, error } = await supabase
-    .from("portfolio_items")
-    .select("id, title, thumbnail_url, gallery_images, visibility")
-    .eq("visibility", "public")
-    .limit(10);
+  try {
+    await client.connect();
 
-  if (error) {
+    const { rows } = await client.query(
+      `select id, title, thumbnail_url, gallery_images, visibility
+       from portfolio_items
+       where visibility = $1
+       limit 10`,
+      ["public"]
+    );
+
+    console.log("Portfolio items:", JSON.stringify(rows, null, 2));
+  } catch (error) {
     console.error("Error:", error);
-  } else {
-    console.log("Portfolio items:", JSON.stringify(data, null, 2));
+    process.exitCode = 1;
+  } finally {
+    await client.end().catch(() => {});
   }
 }
 

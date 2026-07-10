@@ -6,11 +6,15 @@ import { PortfolioItem } from "@/data/portfolioItems";
 interface PortfolioItemCardProps {
   item: PortfolioItem;
   onPreview?: (item: PortfolioItem) => void;
+  featuredBadge?: string | null;
+  cardCtaLabel?: string | null;
 }
 
 export default function PortfolioItemCard({
   item,
   onPreview,
+  featuredBadge,
+  cardCtaLabel,
 }: PortfolioItemCardProps) {
   const hasThumbnailDimensions =
     typeof item.thumbnail_width === "number" &&
@@ -40,12 +44,12 @@ export default function PortfolioItemCard({
         />
         {item.featured && (
           <div className="absolute right-3 top-3 z-10 rounded-full bg-gradient-to-r from-[#8b5cf6] to-[#b794f6] px-3 py-1 text-xs font-semibold text-white shadow-[0_12px_28px_-18px_rgba(139,92,246,0.8)]">
-            Featured
+            {featuredBadge || "Featured"}
           </div>
         )}
         <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/0 transition-all duration-300 group-hover:bg-black/24 pointer-events-none">
           <button className="pointer-events-auto rounded-full bg-white/92 px-5 py-2 text-sm font-semibold text-[#071015] opacity-0 shadow-[0_16px_34px_-20px_rgba(0,0,0,0.6)] transition-all duration-300 group-hover:opacity-100">
-            View
+            {cardCtaLabel || "View"}
           </button>
         </div>
       </div>

@@ -1,14 +1,31 @@
-import { testimonials as staticTestimonials } from "@/data/testimonials";
 import type { Testimonial } from "@/data/testimonials";
 import type { TestimonialDto } from "@/lib/cms/mappers";
 
 interface TestimonialsProps {
   testimonials?: (Testimonial | TestimonialDto)[];
+  content?: {
+    enabled?: boolean | null;
+    eyebrow?: string | null;
+    heading?: string | null;
+    description?: string | null;
+    statistics?: { value?: string | null; label?: string | null }[] | null;
+  } | null;
 }
 
 export default function Testimonials({
-  testimonials = staticTestimonials,
+  testimonials = [],
+  content,
 }: TestimonialsProps) {
+  if (content?.enabled === false) {
+    return null;
+  }
+
+  const statistics = content?.statistics?.filter((stat) => stat.value && stat.label) || [
+    { value: "98%", label: "Satisfaction rate" },
+    { value: "50+", label: "Testimonials" },
+    { value: "200+", label: "Happy creators" },
+  ];
+
   const accentColors = [
     "from-white/8 to-transparent",
     "from-[#8b5cf6]/10 via-transparent to-transparent",
@@ -22,12 +39,12 @@ export default function Testimonials({
       <div className="section-grid" />
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-14 max-w-3xl">
-          <span className="section-kicker mb-5">Testimonials</span>
+          <span className="section-kicker mb-5">{content?.eyebrow || "Testimonials"}</span>
           <h2 className="section-title text-4xl sm:text-5xl lg:text-6xl">
-            Client Stories
+            {content?.heading || "Client Stories"}
           </h2>
           <p className="section-copy mt-5 text-lg">
-            What creators and studios say about working with me.
+            {content?.description || "What creators and studios say about working with me."}
           </p>
         </div>
 
@@ -66,18 +83,12 @@ export default function Testimonials({
         </div>
 
         <div className="mt-12 grid gap-4 border-t border-white/10 pt-8 sm:grid-cols-3">
-          <div className="testimonial-card surface-panel rounded-[1.5rem] p-6">
-            <p className="text-4xl font-semibold text-white">98%</p>
-            <p className="mt-2 text-sm text-[#9aa7b9]">Satisfaction rate</p>
-          </div>
-          <div className="testimonial-card surface-panel rounded-[1.5rem] p-6">
-            <p className="text-4xl font-semibold text-white">50+</p>
-            <p className="mt-2 text-sm text-[#9aa7b9]">Testimonials</p>
-          </div>
-          <div className="testimonial-card surface-panel rounded-[1.5rem] p-6">
-            <p className="text-4xl font-semibold text-white">200+</p>
-            <p className="mt-2 text-sm text-[#9aa7b9]">Happy creators</p>
-          </div>
+          {statistics.map((stat) => (
+            <div key={`${stat.value}-${stat.label}`} className="testimonial-card surface-panel rounded-[1.5rem] p-6">
+              <p className="text-4xl font-semibold text-white">{stat.value}</p>
+              <p className="mt-2 text-sm text-[#9aa7b9]">{stat.label}</p>
+            </div>
+          ))}
         </div>
       </div>
     </section>

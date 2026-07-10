@@ -8,9 +8,17 @@ import { useEffect } from "react";
 interface PortfolioModalProps {
   item: PortfolioItem | null;
   onClose: () => void;
+  content?: {
+    modalEyebrow?: string | null;
+    categoryLabel?: string | null;
+    dateLabel?: string | null;
+    descriptionLabel?: string | null;
+    tagsLabel?: string | null;
+    modalCta?: { label?: string | null; href?: string | null; newTab?: boolean | null } | null;
+  } | null;
 }
 
-export default function PortfolioModal({ item, onClose }: PortfolioModalProps) {
+export default function PortfolioModal({ item, onClose, content }: PortfolioModalProps) {
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -36,7 +44,7 @@ export default function PortfolioModal({ item, onClose }: PortfolioModalProps) {
         {/* Header */}
         <div className="sticky top-0 flex items-center justify-between border-b border-white/10 bg-[#0f141b]/95 p-6 backdrop-blur-xl">
           <div>
-            <p className="text-xs uppercase tracking-[0.22em] text-[#9aa7b9]">Portfolio item</p>
+            <p className="text-xs uppercase tracking-[0.22em] text-[#9aa7b9]">{content?.modalEyebrow || "Portfolio item"}</p>
             <h2 className="mt-2 text-2xl font-semibold text-white">{item.title}</h2>
           </div>
           <button
@@ -62,13 +70,13 @@ export default function PortfolioModal({ item, onClose }: PortfolioModalProps) {
           {/* Details */}
           <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-[#9aa7b9] mb-2">Category</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-[#9aa7b9] mb-2">{content?.categoryLabel || "Category"}</p>
               <p className="capitalize text-white">
                 {item.category.replace("-", " ")}
               </p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-[#9aa7b9] mb-2">Date</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-[#9aa7b9] mb-2">{content?.dateLabel || "Date"}</p>
               <p className="text-white">
                 {new Date(item.date).toLocaleDateString()}
               </p>
@@ -77,13 +85,13 @@ export default function PortfolioModal({ item, onClose }: PortfolioModalProps) {
 
           {/* Description */}
           <div className="mb-6 rounded-[1.5rem] border border-white/10 bg-white/5 p-5">
-            <p className="text-xs uppercase tracking-[0.22em] text-[#9aa7b9] mb-2">Description</p>
+            <p className="text-xs uppercase tracking-[0.22em] text-[#9aa7b9] mb-2">{content?.descriptionLabel || "Description"}</p>
             <p className="leading-8 text-[#edf3fb]">{item.description}</p>
           </div>
 
           {/* Tags */}
           <div className="mb-8">
-            <p className="text-xs uppercase tracking-[0.22em] text-[#9aa7b9] mb-3">Tags</p>
+            <p className="text-xs uppercase tracking-[0.22em] text-[#9aa7b9] mb-3">{content?.tagsLabel || "Tags"}</p>
             <div className="flex flex-wrap gap-2">
               {item.tags.map((tag) => (
                 <span
@@ -97,8 +105,13 @@ export default function PortfolioModal({ item, onClose }: PortfolioModalProps) {
           </div>
 
           {/* Action */}
-          <Link href="/contact" className="glass-button block w-full py-3 text-center">
-            Order This Design
+          <Link
+            href={content?.modalCta?.href || "/contact"}
+            target={content?.modalCta?.newTab ? "_blank" : undefined}
+            rel={content?.modalCta?.newTab ? "noopener noreferrer" : undefined}
+            className="glass-button block w-full py-3 text-center"
+          >
+            {content?.modalCta?.label || "Order This Design"}
           </Link>
         </div>
       </div>
